@@ -1,0 +1,117 @@
+﻿@model Frontend.ViewModels.AddNodeViewModel
+
+
+<form asp-action="Add" asp-controller="Node">
+    <div class="card">
+        <div class="card-header">
+            Explanation
+        </div>
+        <div class="card-body">
+            <ol>
+                <li>The end point should respond to POST request.</li>
+                <li>Only https is accepted.</li>
+                <li>
+                    The endpoint should accept a model as such:
+                    {
+                        "Goal": "A",
+                        "Facts": [A, B, C, D]
+                    }
+                </li>
+                <li>
+                    The endpoint should respond a model as such:
+                    {
+                        "Production": "A",
+                        "Trace": {
+                            
+                        }
+                    }
+                </li>
+
+            </ol>
+        </div>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Endpoint" class="control-label"></label>
+        <input asp-for="Endpoint" class="form-control" />
+        <span asp-validation-for="Endpoint" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="HealthEndpoint" class="control-label"></label>
+        <input asp-for="HealthEndpoint" class="form-control" />
+        <span asp-validation-for="HealthEndpoint" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Rule" class="control-label"></label>
+        <input asp-for="Rule" class="form-control" />
+        <span asp-validation-for="Rule" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <fieldset class="form-add-data-type">
+            <label asp-for="InputDataType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <div class="add-data-types">
+                    <div class="form-inline add-data-type">
+                        <div class="form-group">
+                            <select name="InputDataType[0]" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-add-data-type">Add type</button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="form-group">
+        <label asp-for="OutputDataType" class="control-label"></label>
+        <select asp-for="OutputDataType" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
+        <span asp-validation-for="OutputDataType" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Add" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts{ 
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var index = 1;
+            var wrapper = $('.add-data-types');
+
+            $(".btn-add-data-type").click(function(e) {
+                e.preventDefault();
+                var cloned = $('.add-data-type:first-child').clone(true);
+
+                cloned.find('select').attr("name", "InputDataType[" + index + "]");
+                index++;
+
+                cloned.appendTo(wrapper);
+                removeRemoveButtons();
+                addRemoveButtonToLastInput();
+            });
+
+            $('body').on('click', '.btn-remove-data-type', function (e) {
+                e.preventDefault();
+                $(this).parents('.add-data-type').remove();
+                index--;
+            });
+
+            function addRemoveButtonToLastInput() {
+                var element = $('.add-data-type:last-child');
+                element.append(`<div class="form-group">
+                                    <button type="button" class="btn btn-remove-data-type" data-toggle="tooltip" title="Remove type">Remove type</button>
+                               </div>`);
+            }
+
+            function removeRemoveButtons() {
+                $('.btn-remove-data-type').remove();
+            }
+        });
+    </script>
+
+}

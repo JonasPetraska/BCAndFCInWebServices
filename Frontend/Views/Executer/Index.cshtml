@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Common.Models.Program>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Nodes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var program in Model)
+            {
+                <tr>
+                    <td>@program.Name</td>
+                    <td>
+                        @foreach (var node in program.Nodes)
+                        {
+                            <p>@node.Name</p>
+                        }
+                    </td>
+                    <td>
+                        @Html.ActionLink("Execute", "Execute", "Executer", routeValues: new { @id = program.Id }, htmlAttributes: new { @class = "btn btn-success" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

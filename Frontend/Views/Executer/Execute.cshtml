@@ -1,0 +1,41 @@
+﻿@model Frontend.ViewModels.ExecuteProgramViewModel
+
+
+<form asp-action="Execute" asp-controller="Executer">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.ProgramId)
+    @Html.HiddenFor(x => x.ProgramName)
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="ProgramName" class="control-label"></label>
+        <input asp-for="ProgramName" class="form-control" disabled/>
+        <span asp-validation-for="ProgramName" class="text-danger"></span>
+    </div>
+
+    @{
+        var firstNode = Model.Nodes.FirstOrDefault();
+
+    }
+
+    @for (int i = 0; i < firstNode.Rule.LeftSide.Count; i++)
+    {
+        <div class="form-group">
+            <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i])</label>
+            <input name="NodeInputValues[@i]" class="form-control" value="@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")" required/>
+        </div>
+    }
+
+    <div class="form-group">
+        <input type="submit" value="Execute" class="btn btn-primary" />
+    </div>
+
+
+    @if(!String.IsNullOrEmpty(Model.Result)){
+        @:Result:
+        if(Model.OutputDataType == Common.Enums.DataTypeEnum.ImageAsBase64String){
+            @:<img src="@Model.Result" class="img-fluid img-thumbnail" />
+        }else{
+            <p>@Model.Result</p>
+        }
+    }
+</form>

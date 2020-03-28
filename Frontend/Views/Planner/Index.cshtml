@@ -1,0 +1,368 @@
+﻿
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm", @style = "display:none;" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+<form id="form" class="needs-validation" novalidate>
+
+    <div id="methodTypeFormGroup" class="form-group row">
+        <label for="methodTypeSelect" class="col-sm-2 col-form-label">Select type</label>
+        <div class="col-sm-10">
+            <select id="methodTypeSelect" class="form-control custom-select" required>
+                <option value="FORWARD">Forward</option>
+                <option value="BACKWARD">Backward</option>
+            </select>
+            <div class="invalid-feedback">
+                Please select a type
+            </div>
+        </div>
+    </div>
+
+    <div id="factsFormGroup" class="form-group row">
+        <label for="factsInput" class="col-sm-2 col-form-label">Facts</label>
+        <div class="col-sm-10">
+            <input id="factsInput" class="form-control" type="text" placeholder="Enter facts separated by comma (eg. A,B,C)" required />
+            <div class="invalid-feedback">
+                Please provide facts
+            </div>
+        </div>
+    </div>
+
+    <div id="goalFormGroup" class="form-group row">
+        <label for="goalInput" class="col-sm-2 col-form-label">Goal</label>
+        <div class="col-sm-10">
+            <input id="goalInput" class="form-control" type="text" placeholder="Enter goal, must be only one goal (eg. D)" required />
+            <div class="invalid-feedback">
+                Please provide a goal
+            </div>
+        </div>
+    </div>
+
+    <div id="rulesFormGroup" class="form-group row">
+        <label for="rulesTextArea" class="col-sm-2 col-form-label">Rules</label>
+        <div class="col-sm-10">
+            <textarea id="rulesTextArea" class="form-control" rows="10" placeholder="Enter rules in a format A->B (one rule = one line), eg. A,B,C->D" disabled></textarea>
+            <div class="invalid-feedback">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="btn btn-group">
+        <button type="submit" class="btn btn-success">Send request</button>
+        <button id="convertToJson" type="button" class="btn btn-secondary">Convert to JSON</button>
+    </div>
+
+    <div id="saveAsProgramDiv" style="display:none;">
+        <div id="saveAsProgramFormGroup" class="form-group row">
+            <label for="programNameInput" class="col-sm-2 col-form-label">Program name</label>
+            <div class="col-sm-10">
+                <input id="programNameInput" class="form-control" type="text" placeholder="Enter name for a program"/>
+                <div class="invalid-feedback">
+                    Please provide name for program
+                </div>
+            </div>
+        </div>
+
+
+        <div class="btn btn-group">
+            <button id="saveAsProgramButton" type="button" class="btn btn-info">Save as program</button>
+        </div>
+    </div>
+
+    <div id="resultPlaceholder"></div>
+
+    <div id="convertToJSONFormGroup" class="form-group row" style="display: none;">
+        <label for="convertToJSONTextArea" class="col-sm-2 col-form-label">JSON</label>
+        <div class="col-sm-10">
+            <textarea id="convertToJSONTextArea" class="form-control" rows="10" disabled></textarea>
+            <div class="invalid-feedback">
+
+            </div>
+        </div>
+    </div>
+
+</form>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+
+            @if(ViewData["Rules"] != null)
+            {
+                @:$('#rulesTextArea').val('@System.Web.HttpUtility.JavaScriptStringEncode(ViewData["Rules"].ToString())');
+            }
+
+
+            $("button#convertToJson").click(function () {
+                var goal = $('#goalInput').val();
+
+                //split into lists
+                var facts = $('#factsInput').val();
+                var factsList = facts.split(',');
+                var rules = $('#rulesTextArea').val();
+                var rulesList = rules.split('\n');
+                var methodType = $('#methodTypeSelect').val();
+
+                var rulesObjectList = [];
+
+                var i = 0;
+
+                rulesList.forEach(rule => {
+                    var ruleObj = {};
+                    var splitRule = rule.split("->");
+
+                    ruleObj.RightSide = splitRule[1];
+
+                    var splitLeftSide = splitRule[0].split(',');
+                    ruleObj.LeftSide = [];
+
+                    var j = 0;
+
+                    splitLeftSide.forEach(character => {
+                        ruleObj.LeftSide[j++] = character;
+
+                    });
+
+                    rulesObjectList[i++] = ruleObj;
+                });
+
+                var resObj = {};
+                resObj.MethodType = methodType;
+                resObj.Goal = goal;
+                resObj.Facts = factsList;
+                resObj.Rules = rulesObjectList;
+
+                var cJsonTextArea = $("#convertToJSONTextArea");
+                cJsonTextArea.text(JSON.stringify(resObj, null, '\t'));
+
+                $("#convertToJSONFormGroup").show();
+                $("#resultPlaceholder").hide();
+                $("#saveAsProgramDiv").hide();
+
+            });
+
+            $("button#saveAsProgramButton").click(function () {
+                var programName = $("#programNameInput").val();
+                if (programName == "") {
+                    alert("Please provide name for program");
+                    setProgramNameInvalidFeedbackMessage("Please provide name for program");
+                    $("#programNameInput").removeClass("is-valid");
+                    $("#programNameInput").addClass("is-invalid");
+                    return;
+                }
+
+                //Get anti forgery token
+                var form = $('#__AjaxAntiForgeryForm');
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                var nodeIdsFields = $("input[name^='NodeIds']");
+                var nodeIds = [];
+                nodeIdsFields.each(function () {
+                    nodeIds.push($(this).val());
+                });
+
+                //Send ajax request
+                $.when($.ajax({
+                    url: '@Url.Action("SaveAsProgram", "Planner")',
+                    type: 'POST',
+                    async: true,
+                    headers: { __RequestVerificationToken: token },
+                    data: {
+                        __RequestVerificationToken: token,
+                        ProgramName: programName,
+                        NodeIds: nodeIds
+                    },
+                    beforeSend: function () {
+                        $("button").prop("disabled", true);
+                        $("button#saveAsProgramButton").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="sr-only">Loading...</span>');
+                    }
+                })).done(function (result) {
+                    $("button").prop("disabled", false);
+                    $("button#saveAsProgramButton").html("Save as program");
+                    alert(result);
+                });
+
+            });
+
+            $("#form").submit(function (event) {
+                $("#convertToJSONFormGroup").hide();
+                $("#resultPlaceholder").show();
+                $("#saveAsProgramDiv").hide();
+
+                setDefaultValidationTexts();
+                setDefaultValidationState();
+                event.preventDefault();
+                event.stopPropagation();
+                this.classList.add('was-validated');
+                //form.classList.add('was-validated');
+                if (this.checkValidity() === true) {
+                    onSubmitComplete(this);
+                }
+            });
+
+
+            //window.addEventListener('load', function () {
+            //    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            //    var forms = document.getElementsByClassName('needs-validation');
+            //    // Loop over them and prevent submission
+            //    var validation = Array.prototype.filter.call(forms, function (form) {
+            //        form.addEventListener('submit', function (event) {
+
+            //            $("#convertToJSONFormGroup").hide();
+            //            $("#resultPlaceholder").show();
+            //            $("#saveAsProgramDiv").hide();
+
+            //            setDefaultValidationTexts();
+            //            setDefaultValidationState();
+            //            event.preventDefault();
+            //            event.stopPropagation();
+            //            form.classList.add('was-validated');
+            //            if (form.checkValidity() === true) {
+            //                onSubmitComplete(form);
+            //            }
+
+            //        }, false);
+            //    });
+            //}, false);
+        });
+    </script>
+
+    <script>
+        function onSubmitComplete(form) {
+            var goal = $('#goalInput').val();
+
+            //invalid goal
+            if (goal.indexOf(',') > -1) {
+                setGoalInvalidFeedbackMessage("Invalid goal format.");
+                $("#goalInput").removeClass("is-valid");
+                $("#goalInput").addClass("is-invalid");
+                form.classList.remove('was-validated');
+                return;
+            }
+
+            //split into lists
+            var facts = $('#factsInput').val();
+            var factsList = facts.split(',');
+            var rules = $('#rulesTextArea').val();
+            var rulesList = rules.split('\n');
+            var methodType = $('#methodTypeSelect').val();
+
+
+            //is in error state
+            var isError = false;
+
+            //check if rules are correct
+            rulesList.forEach(element => {
+                //alert(element);
+                if (element.indexOf("->") == -1 && element != "\n" && element != " " && element != "") {
+                    setRulesInvalidFeedbackMessage("Rules in a wrong format (should be A->B, one rule = one line).");
+                    $("#rulesTextArea").removeClass("is-valid");
+                    $("#rulesTextArea").addClass("is-invalid");
+                    form.classList.remove('was-validated');
+                    isError = true;
+                }
+            });
+
+            //if error, return
+            if (isError)
+                return;
+
+            var rulesObjectList = [];
+
+            var i = 0;
+
+            rulesList.forEach(rule => {
+                var ruleObj = {};
+                var splitRule = rule.split("->");
+
+                ruleObj.RightSide = splitRule[1];
+
+                var splitLeftSide = splitRule[0].split(',');
+                ruleObj.LeftSide = [];
+
+                var j = 0;
+
+                splitLeftSide.forEach(character => {
+                    ruleObj.LeftSide[j++] = character;
+                    
+                });
+
+                rulesObjectList[i++] = ruleObj;
+            });
+
+            //Get anti forgery token
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            //Send ajax request
+            $.when($.ajax({
+                url: '@Url.Action("ProcessRequest", "Planner")',
+                type: 'POST',
+                async: true,
+                headers: { __RequestVerificationToken: token },
+                data: {
+                    __RequestVerificationToken: token,
+                    MethodType: methodType,
+                    Goal: goal,
+                    Facts: factsList,
+                    Rules: rulesObjectList
+                },
+                beforeSend: function () {
+                    $("button[type='submit']").prop("disabled", true);
+                    $("button[type='submit']").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="sr-only">Loading...</span>');
+                }
+            })).done(function (result)
+            {
+                $("button[type='submit']").prop("disabled", false);
+                $("button[type='submit']").html("Send request");
+                $("#resultPlaceholder").html(result);
+                $("#saveAsProgramDiv").show();
+            });
+        }
+
+        //function to set default validation state to valid
+        function setDefaultValidationState() {
+            $("#goalInput").removeClass("is-invalid");
+            $("#methodTypeSelect").removeClass("is-invalid");
+            $("#rulesTextArea").removeClass("is-invalid");
+            $("#factsInput").removeClass("is-invalid");
+            $("#programNameInput").removeClass("is-invalid");
+        }
+
+        //function to set default validations messages
+        function setDefaultValidationTexts() {
+            setMethodTypeInvalidFeedbackMessage("Please select a type");
+            setFactsInvalidFeedbackMessage("Please provide facts");
+            setGoalInvalidFeedbackMessage("Please provide a goal");
+            setRulesInvalidFeedbackMessage("");
+            setProgramNameInvalidFeedbackMessage("Please provide name for program");
+        }
+
+        //function to set method type validation message
+        function setMethodTypeInvalidFeedbackMessage(message) {
+            $("#methodTypeFormGroup .invalid-feedback").text(message);
+        }
+
+        //function to set facts validation message
+        function setFactsInvalidFeedbackMessage(message) {
+            $("#factsFormGroup .invalid-feedback").text(message);
+        }
+
+        //function to set goal validation message
+        function setGoalInvalidFeedbackMessage(message) {
+            $("#goalFormGroup .invalid-feedback").text(message);
+        }
+
+        //function to set rules validation message
+        function setRulesInvalidFeedbackMessage(message) {
+            $("#rulesFormGroup .invalid-feedback").text(message);
+        }
+
+        //function to set program name validation message
+        function setProgramNameInvalidFeedbackMessage(message) {
+            $("#saveAsProgramFormGroup .invalid-feedback").text(message);
+        }
+    </script>
+}
