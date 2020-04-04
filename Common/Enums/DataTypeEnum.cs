@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
@@ -7,15 +8,25 @@ namespace Common.Enums
 {
     public enum DataTypeEnum
     {
-        [Display(Name = "Number")]
+        [Display(Name = "Sveikasis skaičius")]
+        [Description("Sveikasis skaičius")]
         Integer,
-        [Display(Name = "Text")]
+
+        [Display(Name = "Tekstas")]
+        [Description("Tekstas")]
         String,
-        [Display(Name = "Decimal number")]
+
+        [Display(Name = "Dešimtainis skaičius")]
+        [Description("Dešimtainis skaičius")]
         Double,
-        [Display(Name = "Image as byte array")]
+
+        [Display(Name = "Paveiksliukas kaip baitų masyvas")]
+        [Description("Paveiksliukas kaip baitų masyvas")]
         ImageAsByteArray,
-        [Display(Name = "Image as base64 string")]
-        ImageAsBase64String
+
+        [Display(Name = "Paveiksliukas kaip tekstas užkoduotas Base64")]
+        [Description("Paveiksliukas kaip tekstas užkoduotas Base64")]
+        ImageAsBase64String,
+        None
     }
 }

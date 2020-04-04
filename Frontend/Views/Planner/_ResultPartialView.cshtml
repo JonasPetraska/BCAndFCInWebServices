@@ -6,11 +6,11 @@
     }
 
     <div class="card-header">
-        Results
+        Rezultatai
     </div>
     <div class="card-body">
-        <h1>Part 1 - Input data:</h1>
-        <h3>Rules: </h3>
+        <h1>1 dalis - Įvestys:</h1>
+        <h3>Produkcinės taisyklės: </h3>
         @foreach (var rule in Model.Rules)
         {
             <p>@rule.Number: @rule.ToStringFull()</p>
@@ -20,13 +20,13 @@
             <p>@node.Name: @node.Rule.ToStringFull()</p>
         }*@
 
-        <h1>Facts: </h1>
+        <h1>Faktai: </h1>
         <p>[@string.Join(';', Model.Facts)]</p>
 
-        <h3>Goal: </h3>
+        <h3>Tikslas: </h3>
         <p>@Model.Goal</p>
 
-        <h1>Part 2 - Trace:</h1>
+        <h1>2 dalis - Veiksmai:</h1>
 
         @if (Model.MethodType.ToLower() == "backward")
         {
@@ -35,22 +35,22 @@
             @foreach (var element in Model.Trace)
             {
                 <p>
-                    @string.Format("{0}. Goal {1}", i++, element.Goal)
+                    @string.Format("{0}. Tikslas {1}", i++, element.Goal)
                     @if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal)
                     {
-                        @string.Format(". Call {0}: {1}. New goals [{2}].", element.Rule.Number, element.Rule.ToStringFull(), string.Join(',', element.NewGoals))
+                        @string.Format(". Kviečiam {0}: {1}. Nauji tikslai [{2}].", element.Rule.Number, element.Rule.ToStringFull(), string.Join(',', element.NewGoals))
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.Fact)
                     {
-                        @string.Format(". Fact.")
+                        @string.Format(". Faktas.")
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.EarlierDerivedFact)
                     {
-                        @string.Format(". Earlier derived fact.")
+                        @string.Format(". Ankščiau išvestas faktas.")
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.NewFact)
                     {
-                        @string.Format(". New fact {0}. Facts [{1}].", element.Fact, string.Join(',', element.Facts))
+                        @string.Format(". Naujas faktas {0}. Faktai [{1}].", element.Fact, string.Join(',', element.Facts))
                     }
                 </p>
             }
@@ -61,7 +61,7 @@
 
             @foreach (var element in Model.FCTrace)
             {
-                <p>@string.Format("{0}. {1} iteration", i++, element.Number)</p>
+                <p>@string.Format("{0}. {1} iteracija", i++, element.Number)</p>
 
                 @foreach (var trace in element.Trace)
                 {
@@ -69,34 +69,34 @@
                         @string.Format("{0}. {1}: {2}", i++, trace.Rule.ToString(), trace.Rule.ToStringFull())
                         @if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleApplicableRaiseFlag1)
                         {
-                            @string.Format(" is applicable, raising flag 1. Facts: [{0}].", string.Join(",", trace.Facts))
+                            @string.Format(" taikoma, nustatom 1 požymį. Faktai: [{0}].", string.Join(",", trace.Facts))
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableFlag1Raised)
                         {
-                            @string.Format(" is not applicable since flag 1 is raised.")
+                            @string.Format(" netaikoma, nes nustatytas 1 požymis.")
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableFlag2Raised)
                         {
-                            @string.Format(" is not applicable since flag 2 is raised.")
+                            @string.Format(" netaikoma, nes nustatytas 2 požymis.")
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableMissingFacts)
                         {
-                            @string.Format(" is not applicable, because of missing facts: [{0}].", string.Join(",", trace.Facts))
+                            @string.Format(" netaikoma, nes trūksta faktų: [{0}].", string.Join(",", trace.Facts))
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableResultInFactsRaiseFlag2)
                         {
-                            @string.Format(" is bot applicable since facts contain goal, raising flag 2.")
+                            @string.Format(" netaikoma, nes tikslas jau yra faktuose, nustatytas 2 požymis.")
                         }
                     </p>
                 }
             }
         }
 
-        <h1>Part 3 - Output:</h1>
-        <p>Result: @(Model.Result == Common.Enums.FCBCResultEnum.Success ? "Goal reached" : "Goal was not reached")</p>
+        <h1>3 dalis - Išeitis:</h1>
+        <p>Rezultatas: @(Model.Result == Common.Enums.FCBCResultEnum.Success ? "Tikslas pasiektas." : "Tikslas nepasiektas.")</p>
         @if (Model.Result == Common.Enums.FCBCResultEnum.Success)
         {
-            <p>Path: [@string.Join(';', Model.Production)]</p>
+            <p>Kelias: [@string.Join(';', Model.Production)]</p>
         }
     </div>
 </div>

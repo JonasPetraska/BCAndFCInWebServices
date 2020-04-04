@@ -12,25 +12,28 @@ namespace Frontend.ViewModels
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "{0} yra privalomas.")]
+        [Display(Name = "Pavadinimas")]
         public string Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "{0} yra privalomas.")]
+        [Display(Name = "Adresas")]
         public string Endpoint { get; set; }
 
-        [Required]
-        [Display(Name = "Health Endpoint")]
+        [Required(ErrorMessage = "{0} yra privaloma.")]
+        [Display(Name = "Ping-pong adresas")]
         public string HealthEndpoint { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "{0} yra privaloma.")]
+        [Display(Name = "Produkcinė taisyklė")]
         public string Rule { get; set; }
 
-        [Required]
-        [Display(Name = "Input data types")]
+        [Required(ErrorMessage = "{0} yra privaloma.")]
+        [Display(Name = "Antecedentų tipai")]
         public List<DataTypeEnum> InputDataType { get; set; }
 
-        [Required]
-        [Display(Name = "Output data type")]
+        [Required(ErrorMessage = "{0} yra privaloma.")]
+        [Display(Name = "Kosekvento tipas")]
         public DataTypeEnum OutputDataType { get; set; }
 
         public Task<HttpRequestResult<bool>> ValidateEndpoint()

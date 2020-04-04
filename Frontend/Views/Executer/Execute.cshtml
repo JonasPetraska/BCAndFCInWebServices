@@ -1,5 +1,6 @@
 ﻿@model Frontend.ViewModels.ExecuteProgramViewModel
-
+@using System.Text
+@using Frontend.Extensions
 
 <form asp-action="Execute" asp-controller="Executer">
     @Html.AntiForgeryToken()
@@ -20,22 +21,75 @@
     @for (int i = 0; i < firstNode.Rule.LeftSide.Count; i++)
     {
         <div class="form-group">
-            <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i])</label>
-            <input name="NodeInputValues[@i]" class="form-control" value="@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")" required/>
+            <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i].DisplayName())</label>
+            @if(firstNode.InputDataType[i] == Common.Enums.DataTypeEnum.ImageAsBase64String)
+            {
+                <textarea data-type="img" name="NodeInputValues[@i]" class="form-control" required>@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")</textarea> 
+            }
+            else
+            {
+                <input name="NodeInputValues[@i]" class="form-control" value="@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")" required/>
+            }
+            <div class="NodeInputValuesDisplay-@i" style="margin-top:30px;"></div>
         </div>
     }
 
     <div class="form-group">
-        <input type="submit" value="Execute" class="btn btn-primary" />
+        <input type="submit" value="Vykdyti" class="btn btn-primary" />
     </div>
 
 
     @if(!String.IsNullOrEmpty(Model.Result)){
-        @:Result:
-        if(Model.OutputDataType == Common.Enums.DataTypeEnum.ImageAsBase64String){
-            @:<img src="@Model.Result" class="img-fluid img-thumbnail" />
-        }else{
+        @:Rezultatas:
+        if (Model.OutputDataType == Common.Enums.DataTypeEnum.ImageAsBase64String)
+        {
+            @:<img src="@Model.Result" class="img-fluid img-thumbnail" style="position:relative; z-index:99999;" />
+        }
+        else if (Model.OutputDataType == Common.Enums.DataTypeEnum.ImageAsByteArray)
+        {
+            var byteArrayFromStr = Encoding.UTF8.GetBytes(Model.Result);
+            var asBase64 = Convert.ToBase64String(byteArrayFromStr);
+            @:<img src="@("data:image/png;base64," + asBase64)" class="img-fluid img-thumbnail" style="position:relative; z-index:99999;" />
+        }
+        else
+        {
             <p>@Model.Result</p>
         }
     }
+
+    @if (!String.IsNullOrEmpty(Model.Error))
+    {
+        @:Klaida: @Model.Error
+    }
 </form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var inputs = $("textarea[name*='NodeInputValues']");
+            inputs.each(function (index, element) {
+                showImageFromBase64(element);
+            });
+
+
+            $("textarea[name*='NodeInputValues']").on('input', function () {
+                showImageFromBase64(this);
+            });
+        });
+
+        function showImageFromBase64(input) {
+            var isImage = $(input).data("type");
+            if (isImage && isImage == "img") {
+                var val = $(input).val();
+                var parent = $(input).parent();
+                var container = $('div[class*="NodeInputValuesDisplay"]', parent);
+                if (val == "") {
+                    container.html(" ");
+                } else {
+                    container.html('<img src="' + val + '" class="img-fluid img-thumbnail" style="position:relative; z-index:99999;" />');
+                }
+            }
+        }
+    </script>
+}

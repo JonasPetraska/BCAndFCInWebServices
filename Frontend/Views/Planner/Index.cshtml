@@ -7,42 +7,42 @@
 <form id="form" class="needs-validation" novalidate>
 
     <div id="methodTypeFormGroup" class="form-group row">
-        <label for="methodTypeSelect" class="col-sm-2 col-form-label">Select type</label>
+        <label for="methodTypeSelect" class="col-sm-2 col-form-label">Pasirinkite metodą</label>
         <div class="col-sm-10">
             <select id="methodTypeSelect" class="form-control custom-select" required>
                 <option value="FORWARD">Forward</option>
                 <option value="BACKWARD">Backward</option>
             </select>
             <div class="invalid-feedback">
-                Please select a type
+                Pasirinkite metodą
             </div>
         </div>
     </div>
 
     <div id="factsFormGroup" class="form-group row">
-        <label for="factsInput" class="col-sm-2 col-form-label">Facts</label>
+        <label for="factsInput" class="col-sm-2 col-form-label">Faktai</label>
         <div class="col-sm-10">
-            <input id="factsInput" class="form-control" type="text" placeholder="Enter facts separated by comma (eg. A,B,C)" required />
+            <input id="factsInput" class="form-control" type="text" placeholder="Įveskite kableliu atskirtus faktus (pavyzdžiui: A,B,C)" required />
             <div class="invalid-feedback">
-                Please provide facts
+                Nurodykite faktus
             </div>
         </div>
     </div>
 
     <div id="goalFormGroup" class="form-group row">
-        <label for="goalInput" class="col-sm-2 col-form-label">Goal</label>
+        <label for="goalInput" class="col-sm-2 col-form-label">Tikslas</label>
         <div class="col-sm-10">
-            <input id="goalInput" class="form-control" type="text" placeholder="Enter goal, must be only one goal (eg. D)" required />
+            <input id="goalInput" class="form-control" type="text" placeholder="Įveskite galutinį tikslą (pavyzdžiui: D)" required />
             <div class="invalid-feedback">
-                Please provide a goal
+                Nurodykite galutinį tikslą
             </div>
         </div>
     </div>
 
     <div id="rulesFormGroup" class="form-group row">
-        <label for="rulesTextArea" class="col-sm-2 col-form-label">Rules</label>
+        <label for="rulesTextArea" class="col-sm-2 col-form-label">Produkcinės taisyklės</label>
         <div class="col-sm-10">
-            <textarea id="rulesTextArea" class="form-control" rows="10" placeholder="Enter rules in a format A->B (one rule = one line), eg. A,B,C->D" disabled></textarea>
+            <textarea id="rulesTextArea" class="form-control" rows="10" placeholder="Nurodykite produkcines taisyklės formatu A->B (viena taisyklė = viena eilutė), pavyzdžiui: A,B,C->D" disabled></textarea>
             <div class="invalid-feedback">
 
             </div>
@@ -50,24 +50,24 @@
     </div>
 
     <div class="btn btn-group">
-        <button type="submit" class="btn btn-success">Send request</button>
-        <button id="convertToJson" type="button" class="btn btn-secondary">Convert to JSON</button>
+        <button type="submit" class="btn btn-success">Siųsti</button>
+        <button id="convertToJson" type="button" class="btn btn-secondary">Rodyti kaip JSON</button>
     </div>
 
     <div id="saveAsProgramDiv" style="display:none;">
         <div id="saveAsProgramFormGroup" class="form-group row">
-            <label for="programNameInput" class="col-sm-2 col-form-label">Program name</label>
+            <label for="programNameInput" class="col-sm-2 col-form-label">Vykdymo plano pavadinimas</label>
             <div class="col-sm-10">
-                <input id="programNameInput" class="form-control" type="text" placeholder="Enter name for a program"/>
+                <input id="programNameInput" class="form-control" type="text" placeholder="Įveskite vykdymo plano pavadinimą"/>
                 <div class="invalid-feedback">
-                    Please provide name for program
+                    Nurodykite vykdymo plano pavadinimą
                 </div>
             </div>
         </div>
 
 
         <div class="btn btn-group">
-            <button id="saveAsProgramButton" type="button" class="btn btn-info">Save as program</button>
+            <button id="saveAsProgramButton" type="button" class="btn btn-info">Išsaugoti kaip vykdymo planą</button>
         </div>
     </div>
 
@@ -146,8 +146,8 @@
             $("button#saveAsProgramButton").click(function () {
                 var programName = $("#programNameInput").val();
                 if (programName == "") {
-                    alert("Please provide name for program");
-                    setProgramNameInvalidFeedbackMessage("Please provide name for program");
+                    alert("Įveskite vykdymo plano pavadinimą.");
+                    setProgramNameInvalidFeedbackMessage("Įveskite vykdymo plano pavadinimą.");
                     $("#programNameInput").removeClass("is-valid");
                     $("#programNameInput").addClass("is-invalid");
                     return;
@@ -180,7 +180,7 @@
                     }
                 })).done(function (result) {
                     $("button").prop("disabled", false);
-                    $("button#saveAsProgramButton").html("Save as program");
+                    $("button#saveAsProgramButton").html("Išsaugoti kaip vykdymo planą");
                     alert(result);
                 });
 
@@ -235,7 +235,7 @@
 
             //invalid goal
             if (goal.indexOf(',') > -1) {
-                setGoalInvalidFeedbackMessage("Invalid goal format.");
+                setGoalInvalidFeedbackMessage("Neteisingas tikslo formatas.");
                 $("#goalInput").removeClass("is-valid");
                 $("#goalInput").addClass("is-invalid");
                 form.classList.remove('was-validated');
@@ -257,7 +257,7 @@
             rulesList.forEach(element => {
                 //alert(element);
                 if (element.indexOf("->") == -1 && element != "\n" && element != " " && element != "") {
-                    setRulesInvalidFeedbackMessage("Rules in a wrong format (should be A->B, one rule = one line).");
+                    setRulesInvalidFeedbackMessage("Nurodykite produkcines taisyklės formatu A->B (viena taisyklė = viena eilutė), pavyzdžiui: A,B,C->D.");
                     $("#rulesTextArea").removeClass("is-valid");
                     $("#rulesTextArea").addClass("is-invalid");
                     form.classList.remove('was-validated');
@@ -316,7 +316,7 @@
             })).done(function (result)
             {
                 $("button[type='submit']").prop("disabled", false);
-                $("button[type='submit']").html("Send request");
+                $("button[type='submit']").html("Siųsti");
                 $("#resultPlaceholder").html(result);
                 $("#saveAsProgramDiv").show();
             });
@@ -333,11 +333,11 @@
 
         //function to set default validations messages
         function setDefaultValidationTexts() {
-            setMethodTypeInvalidFeedbackMessage("Please select a type");
-            setFactsInvalidFeedbackMessage("Please provide facts");
-            setGoalInvalidFeedbackMessage("Please provide a goal");
+            setMethodTypeInvalidFeedbackMessage("Nurodykite metodą.");
+            setFactsInvalidFeedbackMessage("Nurodykite faktus.");
+            setGoalInvalidFeedbackMessage("Nurodykite galutinį tikslą.");
             setRulesInvalidFeedbackMessage("");
-            setProgramNameInvalidFeedbackMessage("Please provide name for program");
+            setProgramNameInvalidFeedbackMessage("Nurodykite vykdymo plano pavadinimą.");
         }
 
         //function to set method type validation message

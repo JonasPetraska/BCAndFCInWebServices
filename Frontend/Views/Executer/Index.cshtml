@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<Common.Models.Program>
 <div class="table-responsive">
-    <table class="table table-striped">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Nodes</th>
-                <th>Actions</th>
+                <th>Pavadinimas</th>
+                <th>Tiekėjai</th>
+                <th>Operacijos</th>
             </tr>
         </thead>
         <tbody>
@@ -20,7 +20,7 @@
                         }
                     </td>
                     <td>
-                        @Html.ActionLink("Execute", "Execute", "Executer", routeValues: new { @id = program.Id }, htmlAttributes: new { @class = "btn btn-success" })
+                        @Html.ActionLink("Vykdyti", "Execute", "Executer", routeValues: new { @id = program.Id }, htmlAttributes: new { @class = "btn btn-success" })
                     </td>
                 </tr>
             }

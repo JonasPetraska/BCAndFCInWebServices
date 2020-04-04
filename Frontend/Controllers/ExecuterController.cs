@@ -19,7 +19,7 @@ namespace Frontend.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ViewData["Title"] = "Programs";
+            ViewData["Title"] = "Vykdymo planai";
 
             var programsResult = await _programService.GetAllPrograms();
             var programs = programsResult.result;
@@ -30,11 +30,14 @@ namespace Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> Execute(int id)
         {
-            ViewData["Title"] = "Execute program";
+            ViewData["Title"] = "Vykdyti planą";
 
             var programsResult = await _programService.GetAllPrograms();
             var programs = programsResult.result;
             var program = programs.FirstOrDefault(x => x.Id == id);
+
+            if (program == null)
+                return RedirectToAction("Index");
 
             var model = new ExecuteProgramViewModel()
             {
@@ -50,33 +53,70 @@ namespace Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Execute(ExecuteProgramViewModel model)
         {
-            ViewData["Title"] = "Execute program";
+            ViewData["Title"] = "Vykdyti planą";
 
             var programsResult = await _programService.GetAllPrograms();
             var programs = programsResult.result;
             var program = programs.FirstOrDefault(x => x.Id == model.ProgramId);
 
+            if (program == null)
+                return RedirectToAction("Index");
 
-            var count = program.Nodes.Count;
+            var nodes = program.Nodes;
+
+            if (nodes == null || !nodes.Any())
+                return RedirectToAction("Index");
+
+            var firstNode = nodes.First();
+            model.Nodes = program.Nodes;
+
+            var validationResult = firstNode.ValidateInputValues(model.NodeInputValues);
+            if (!validationResult.isSuccessful)
+            {
+                ModelState.AddModelError("", validationResult.ToStringErrors());
+                return View(model);
+            }
+
+            var validationRes = validationResult.result;
+
+            if (!validationRes)
+            {
+                ModelState.AddModelError("", "Netinkamos reikšmės.");
+                return View(model);
+            }
+
+            var count = nodes.Count;
             var i = 0;
             var result = "";
             do
             {
                 if (String.IsNullOrEmpty(result))
                 {
-                    var res = await program.Nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
+                    var res = await nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
                     {
                         InputData = model.NodeInputValues
                     });
+
+                    if (!res.isSuccessful)
+                    {
+                        model.Error = res.ToStringErrors();
+                        break;
+                    }
 
                     result = res.result.OutputData;
                 }
                 else
                 {
-                    var res = await program.Nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
+                    var res = await nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
                     {
                         InputData = new List<string>() { result }
                     });
+
+                    if (!res.isSuccessful)
+                    {
+                        model.Error = res.ToStringErrors();
+                        break;
+                    }
 
                     result = res.result.OutputData;
                 }
@@ -84,10 +124,12 @@ namespace Frontend.Controllers
                 i++;
             } while (i < count);
 
-            var finalResult = result;
+            if (String.IsNullOrEmpty(model.Error))
+            {
+                var finalResult = result;
 
-            model.Result = finalResult;
-            model.Nodes = program.Nodes;
+                model.Result = finalResult;
+            }
             return View(model);
         }
     }

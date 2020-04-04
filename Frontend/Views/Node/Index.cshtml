@@ -1,17 +1,16 @@
 ﻿@model IEnumerable<Common.Models.Node>
-@Html.ActionLink("Add", "Add", controllerName: "Node", null, htmlAttributes: new { @class = "btn btn-primary"})
-<hr/>
-<div class="table-responsive">
-    <table class="table table-striped">
+@using Common.Extensions
+@Html.ActionLink("Pridėti", "Add", controllerName: "Node", null, htmlAttributes: new { @class = "btn btn-primary float-right"})
+<div class="table-responsive" style="padding-top: 10px;">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>End point</th>
-                <th>Health end point</th>
-                <th>Rule</th>
-                <th>Input types</th>
-                <th>Output type</th>
-                <th>Actions</th>
+                <th>Pavadinimas</th>
+                <th>Adresas</th>
+                <th>Produkcinė taisyklė</th>
+                <th>Antecedentų tipai</th>
+                <th>Kosekvento tipas</th>
+                <th>Operacijos</th>
             </tr>
         </thead>
         <tbody>
@@ -20,12 +19,11 @@
                 <tr>
                     <td>@node.Name</td>
                     <td>@node.Endpoint</td>
-                    <td>@node.HealthEndPoint</td>
                     <td>@node.Rule.ToStringFull()</td>
-                    <td>@string.Join(";", node.InputDataType.Select(x => x.ToString()).ToList())</td>
-                    <td>@node.OutputDataType</td>
+                    <td>@string.Join(";", node.InputDataType.Select(x => x.DisplayName()).ToList())</td>
+                    <td>@node.OutputDataType.DisplayName()</td>
                     <td>
-                        @Html.ActionLink("Remove", "Remove", "Node", routeValues: new { @id = node.Id }, htmlAttributes: new { @class = "btn btn-danger" })
+                        @Html.ActionLink("Ištrinti", "Remove", "Node", routeValues: new { @id = node.Id }, htmlAttributes: new { @class = "btn btn-danger" })
                     </td>
                 </tr>
             }

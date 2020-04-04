@@ -23,7 +23,12 @@ namespace ServiceForRuleB_C.Controllers
         {
             var responseModel = new NodeResponseModel();
 
-            var img = GetBase64StringOfImageWithText(model.InputData.FirstOrDefault());
+            if(model.InputData.Count != 1)
+                return BadRequest("Nepakankamas parametrų skaičius.");
+
+            var imageAsBase64 = model.InputData[0].Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", "");
+
+            var img = GetBase64StringOfFlippedImage(imageAsBase64);
 
             responseModel.OutputData = img;
 
@@ -36,25 +41,19 @@ namespace ServiceForRuleB_C.Controllers
             return Ok();
         }
 
-        private string GetBase64StringOfImageWithText(string text)
+        private string GetBase64StringOfFlippedImage(string base64Image)
         {
-            int width = 640;
-            int height = 480;
             string str = "";
+
+            var bytes = Convert.FromBase64String(base64Image);
+
             // Creates a new image with all the pixels set as transparent. 
-            using (var image = new Image<Rgba32>(width, height))
+            using (var image = Image.Load(bytes))
             {
+
                 image.Mutate(context =>
                 {
-                    context.BackgroundColor(Color.Black);
-                    var textGraphicsOptions = new TextGraphicsOptions(true)
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                    };
-                    var font = SystemFonts.CreateFont("Arial", 26);
-                    var center = new PointF(image.Width/2, image.Height / 2);
-                    context.DrawText(textGraphicsOptions, text, font, Color.White, center);
+                    context.Flip(FlipMode.Vertical);
                 });
 
                 str = image.ToBase64String<Rgba32>(PngFormat.Instance);

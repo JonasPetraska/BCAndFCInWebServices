@@ -160,7 +160,7 @@ namespace Frontend.Controllers
             program.Name = model.ProgramName;
 
             await _programService.AddProgram(program);
-            return Json("Program added successfully");
+            return Json("Vykdymo planas išsaugotas.");
 
         }
 

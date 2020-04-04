@@ -4,27 +4,30 @@
 <form asp-action="Add" asp-controller="Node">
     <div class="card">
         <div class="card-header">
-            Explanation
+            Paaiškinimas
         </div>
         <div class="card-body">
             <ol>
-                <li>The end point should respond to POST request.</li>
-                <li>Only https is accepted.</li>
+                <li>Adresas turi priimti POST tipo užklausas.</li>
+                <li>Https protokolas yra privalomas.</li>
                 <li>
-                    The endpoint should accept a model as such:
+                    Tiekėjas turi mokėti nuskaityti tokį JSON įeitį:
                     {
-                        "Goal": "A",
-                        "Facts": [A, B, C, D]
+                        "InputData":[
+                            "A",
+                            "B",
+                            ...
+                        ]                      
                     }
+
+                    Kur "InputData" susideda iš "string" (tekstinio) tipo duomenų
                 </li>
                 <li>
-                    The endpoint should respond a model as such:
+                    Tiekėjas turi grąžinti tokio tipo JSON atsaką:
                     {
-                        "Production": "A",
-                        "Trace": {
-                            
-                        }
+                        "OutputData": "C"
                     }
+                    
                 </li>
 
             </ol>
@@ -53,17 +56,15 @@
     </div>
     <div class="form-group">
         <fieldset class="form-add-data-type">
-            <label asp-for="InputDataType" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <div class="add-data-types">
-                    <div class="form-inline add-data-type">
-                        <div class="form-group">
-                            <select name="InputDataType[0]" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
-                        </div>
+            <label asp-for="InputDataType" class="control-label"></label>
+            <div class="add-data-types">
+                <div class="form-inline add-data-type">
+                    <div class="form-group">
+                        <select name="InputDataType[0]" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary btn-add-data-type">Add type</button>
             </div>
+            <button type="button" class="btn btn-secondary btn-add-data-type">Pridėti tipą</button>
         </fieldset>
     </div>
     <div class="form-group">
@@ -72,7 +73,7 @@
         <span asp-validation-for="OutputDataType" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <input type="submit" value="Add" class="btn btn-primary" />
+        <input type="submit" value="Pridėti" class="btn btn-primary" />
     </div>
 </form>
 
@@ -99,12 +100,17 @@
                 e.preventDefault();
                 $(this).parents('.add-data-type').remove();
                 index--;
+
+                if ($('.add-data-type').length > 1) {
+                    removeRemoveButtons();
+                    addRemoveButtonToLastInput();
+                }
             });
 
             function addRemoveButtonToLastInput() {
                 var element = $('.add-data-type:last-child');
                 element.append(`<div class="form-group">
-                                    <button type="button" class="btn btn-remove-data-type" data-toggle="tooltip" title="Remove type">Remove type</button>
+                                    <button type="button" class="btn btn-remove-data-type" data-toggle="tooltip" title="Pašalinti tipą">Pašalinti tipą</button>
                                </div>`);
             }
 

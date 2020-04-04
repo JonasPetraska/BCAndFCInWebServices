@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend", "Frontend\Fronte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{E6BB7DDF-2965-46B8-B9CF-FABB87F03E58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceForRuleA-B", "ServiceForRuleA-B\ServiceForRuleA-B.csproj", "{9FCF04A2-EA52-4342-8D45-B5E96FFFE7E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceForRuleA-B", "ServiceForRuleA-B\ServiceForRuleA-B.csproj", "{9FCF04A2-EA52-4342-8D45-B5E96FFFE7E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceForRuleB-C", "ServiceForRuleB-C\ServiceForRuleB-C.csproj", "{903993A8-90BE-40C1-8D5C-5DD4E328F0A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceForRuleB-C", "ServiceForRuleB-C\ServiceForRuleB-C.csproj", "{903993A8-90BE-40C1-8D5C-5DD4E328F0A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceForRuleC-D", "ServiceForRuleC-D\ServiceForRuleC-D.csproj", "{833A3D5C-A246-40CB-B991-9BF5D5C96399}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{903993A8-90BE-40C1-8D5C-5DD4E328F0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{903993A8-90BE-40C1-8D5C-5DD4E328F0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{903993A8-90BE-40C1-8D5C-5DD4E328F0A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{833A3D5C-A246-40CB-B991-9BF5D5C96399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{833A3D5C-A246-40CB-B991-9BF5D5C96399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{833A3D5C-A246-40CB-B991-9BF5D5C96399}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{833A3D5C-A246-40CB-B991-9BF5D5C96399}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,32 +9,31 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.Primitives;
 
-namespace ServiceForRuleA_B.Controllers
+namespace ServiceForRuleC_D.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class ServiceController : ControllerBase
+    public class ImageController : ControllerBase
     {
+        private string _text = "Copyright Jonas Petraška";
 
         [HttpPost]
         public IActionResult Index(NodeRequestModel model)
         {
             var responseModel = new NodeResponseModel();
 
-            if (model.InputData.Count != 2)
+            if (model.InputData.Count != 1)
                 return BadRequest("Nepakankamas parametrų skaičius.");
 
             var imageAsBase64 = model.InputData[0].Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", "");
-            var strToPutOnImage = model.InputData[1];
 
-            var resImage = GetBase64StringOfImageWithText(imageAsBase64, strToPutOnImage);
-            responseModel.OutputData = resImage;
+            var img = GetBase64StringOfImageWithText(imageAsBase64);
+
+            responseModel.OutputData = img;
 
             return Ok(responseModel);
-
         }
 
         [HttpPost]
@@ -43,7 +42,7 @@ namespace ServiceForRuleA_B.Controllers
             return Ok();
         }
 
-        private string GetBase64StringOfImageWithText(string base64Image, string text)
+        private string GetBase64StringOfImageWithText(string base64Image)
         {
             string str = "";
 
@@ -57,7 +56,7 @@ namespace ServiceForRuleA_B.Controllers
                     var textGraphicsOptions = new TextGraphicsOptions(true)
                     {
                         HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center
+                        VerticalAlignment = VerticalAlignment.Center,
                     };
 
                     var fontSize = 26;
@@ -67,8 +66,8 @@ namespace ServiceForRuleA_B.Controllers
                     var textColor = GetContrastColorBW(image);
 
                     var font = SystemFonts.CreateFont("Arial", fontSize);
-                    var center = new PointF(image.Width / 2, image.Height / 2);
-                    context.DrawText(textGraphicsOptions, text, font, textColor, center);
+                    var bottom = new PointF(image.Width / 2, image.Height - fontSize);
+                    context.DrawText(textGraphicsOptions, _text, font, textColor, bottom);
                 });
 
                 str = image.ToBase64String<Rgba32>(PngFormat.Instance);
