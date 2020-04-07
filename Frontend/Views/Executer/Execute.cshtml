@@ -24,7 +24,8 @@
             <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i].DisplayName())</label>
             @if(firstNode.InputDataType[i] == Common.Enums.DataTypeEnum.ImageAsBase64String)
             {
-                <textarea data-type="img" name="NodeInputValues[@i]" class="form-control" required>@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")</textarea> 
+				<input class="form-control" type="file" accept=".jpg,.png,.jpeg" onchange="encodeImageFileAsURL(this)"/>
+                <textarea data-type="img" name="NodeInputValues[@i]" class="form-control readonly" style="pointer-events: none;" required>@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")</textarea> 
             }
             else
             {
@@ -76,6 +77,11 @@
             $("textarea[name*='NodeInputValues']").on('input', function () {
                 showImageFromBase64(this);
             });
+
+            $(".readonly").on('keydown paste', function (e) {
+                e.preventDefault();
+            });
+
         });
 
         function showImageFromBase64(input) {
@@ -91,5 +97,18 @@
                 }
             }
         }
+		
+		function encodeImageFileAsURL(element) {
+			var file = element.files[0];
+			var reader = new FileReader();
+			reader.onloadend = function() {
+				var parent = $(element).parent();
+				var textArea = $('textarea[name*="NodeInputValues"]', parent).first();
+				$(textArea).val(reader.result);
+				textArea.trigger('input');
+			}
+			reader.readAsDataURL(file);
+		}
+		
     </script>
 }
