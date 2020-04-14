@@ -2,6 +2,7 @@
 @using System.Text
 @using Frontend.Extensions
 
+
 <form asp-action="Execute" asp-controller="Executer">
     @Html.AntiForgeryToken()
     @Html.HiddenFor(x => x.ProgramId)
@@ -24,7 +25,7 @@
             <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i].DisplayName())</label>
             @if(firstNode.InputDataType[i] == Common.Enums.DataTypeEnum.ImageAsBase64String)
             {
-				<input class="form-control" type="file" accept=".jpg,.png,.jpeg" onchange="encodeImageFileAsURL(this)"/>
+				<input class="form-control" type="file" accept=".jpg,.png,.jpeg" onchange="setTimeout(encodeImageFileAsURL(this), 500)"/>
                 <textarea data-type="img" name="NodeInputValues[@i]" class="form-control readonly" style="pointer-events: none;" required>@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")</textarea> 
             }
             else
@@ -70,12 +71,12 @@
 
             var inputs = $("textarea[name*='NodeInputValues']");
             inputs.each(function (index, element) {
-                showImageFromBase64(element);
+                setTimeout(showImageFromBase64(element), 500);
             });
 
 
             $("textarea[name*='NodeInputValues']").on('input', function () {
-                showImageFromBase64(this);
+                setTimeout(showImageFromBase64(this), 500);
             });
 
             $(".readonly").on('keydown paste', function (e) {
@@ -93,7 +94,7 @@
                 if (val == "") {
                     container.html(" ");
                 } else {
-                    container.html('<img src="' + val + '" class="img-fluid img-thumbnail" style="position:relative; z-index:99999;" />');
+                    container.html('<img src="' + val + '" class="img-fluid img-thumbnail" style="position:relative; z-index:99999;" />');//
                 }
             }
         }
@@ -101,12 +102,12 @@
 		function encodeImageFileAsURL(element) {
 			var file = element.files[0];
 			var reader = new FileReader();
-			reader.onloadend = function() {
+            reader.onloadend = function () {
 				var parent = $(element).parent();
-				var textArea = $('textarea[name*="NodeInputValues"]', parent).first();
-				$(textArea).val(reader.result);
-				textArea.trigger('input');
-			}
+                var textArea = $('textarea[name*="NodeInputValues"]', parent).first();
+                $(textArea).val(reader.result);//
+                textArea.trigger('input');
+            }
 			reader.readAsDataURL(file);
 		}
 		

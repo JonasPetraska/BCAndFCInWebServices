@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Common.Models;
 using Frontend.Extensions;
 using Frontend.Services;
 using Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 
 namespace Frontend.Controllers
 {
     public class NodeController : Controller
     {
         private INodesService _nodesService;
+        private IProgramService _programService;
 
-        public NodeController(INodesService nodesService)
+        public NodeController(INodesService nodesService, IProgramService programService)
         {
             _nodesService = nodesService;
+            _programService = programService;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewData["Title"] = "Tiekėjai";
+            ViewData["Title"] = "Gamintojai";
 
             var nodes = await _nodesService.GetAllNodes();
             return View(nodes.result);
@@ -29,7 +35,7 @@ namespace Frontend.Controllers
 
         public IActionResult Add()
         {
-            ViewData["Title"] = "Pridėti tiekėją";
+            ViewData["Title"] = "Pridėti gamintoją";
             return View();
         }
 
@@ -37,7 +43,7 @@ namespace Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(AddNodeViewModel viewModel)
         {
-            ViewData["Title"] = "Pridėti tiekėją";
+            ViewData["Title"] = "Pridėti gamintoją";
             if (ModelState.IsValid)
             {
                 var endpointValidationResult = await viewModel.ValidateEndpoint();
@@ -129,6 +135,7 @@ namespace Frontend.Controllers
 
                 await _nodesService.AddNode(node);
 
+                TempData["SuccessMessage"] = "Gamintojas sėkmingai pridėtas.";
                 return RedirectToAction("Index");
             }
 
@@ -137,9 +144,68 @@ namespace Frontend.Controllers
 
         public async Task<IActionResult> Remove(int id)
         {
+            var programsResult = await _programService.GetAllPrograms();
+            if (!programsResult.isSuccessful)
+            {
+                TempData["DangerMessage"] = programsResult;
+                return RedirectToAction("Index");
+            }
+
+            var programs = programsResult.result;
+
+            if(programs.Any(x => x.Nodes.Any(x => x.Id == id)))
+            {
+                TempData["DangerMessage"] = "Gamintojas negali būti ištrintas, nes jau yra naudojamas gamybos planuose.";
+                return RedirectToAction("Index");
+            }
+
             await _nodesService.RemoveNode(id);
 
-            return RedirectToAction("Nodes");
+            TempData["SuccessMessage"] = "Gamintojas sėkmingai ištrintas.";
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Json()
+        {
+            var nodesResult = await _nodesService.GetAllNodes();
+            if (!nodesResult.isSuccessful)
+            {
+                TempData["DangerMessage"] = nodesResult.ToStringErrors();
+                return RedirectToAction("Index");
+            }
+
+            var nodes = nodesResult.result;
+
+            return Json(nodes, new System.Text.Json.JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
+        }
+
+        public async Task JsonInputSchema()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator()
+            {
+                DefaultRequired = Required.DisallowNull
+            };
+            JSchema schema = generator.Generate(typeof(NodeRequestModel));
+            Response.ContentType = "application/json";
+            Response.StatusCode = 200;
+            var byteArray = Encoding.UTF8.GetBytes(schema.ToString());
+            await Response.Body.WriteAsync(byteArray, 0, byteArray.Length);
+        }
+
+        public async Task JsonOutputSchema()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator()
+            {
+                DefaultRequired = Required.DisallowNull
+            };
+            JSchema schema = generator.Generate(typeof(NodeResponseModel));
+            Response.ContentType = "application/json";
+            Response.StatusCode = 200;
+            var byteArray = Encoding.UTF8.GetBytes(schema.ToString());
+            await Response.Body.WriteAsync(byteArray, 0, byteArray.Length);
         }
     }
 }

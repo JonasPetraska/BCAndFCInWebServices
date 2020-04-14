@@ -132,5 +132,30 @@ namespace Frontend.Controllers
             }
             return View(model);
         }
+
+        public async Task<IActionResult> Remove(int id)
+        {
+            await _programService.RemoveProgram(id);
+
+            TempData["SuccessMessage"] = "Gamintojas sėkmingai ištrintas.";
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Json()
+        {
+            var programsResult = await _programService.GetAllPrograms();
+            if (!programsResult.isSuccessful)
+            {
+                TempData["DangerMessage"] = programsResult.ToStringErrors();
+                return RedirectToAction("Index");
+            }
+
+            var programs = programsResult.result;
+
+            return Json(programs, new System.Text.Json.JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
+        }
     }
 }

@@ -11,23 +11,25 @@
                 <li>Adresas turi priimti POST tipo užklausas.</li>
                 <li>Https protokolas yra privalomas.</li>
                 <li>
-                    Tiekėjas turi mokėti nuskaityti tokį JSON įeitį:
-                    {
-                        "InputData":[
-                            "A",
-                            "B",
-                            ...
-                        ]                      
-                    }
-
+                    Gamintojas turi mokėti nuskaityti tokį JSON įeitį:
+<pre>
+{
+    "InputData":[
+        "A",
+        "B",
+        ...
+    ]
+}
+</pre>
                     Kur "InputData" susideda iš "string" (tekstinio) tipo duomenų
                 </li>
                 <li>
-                    Tiekėjas turi grąžinti tokio tipo JSON atsaką:
-                    {
-                        "OutputData": "C"
-                    }
-                    
+                    Gamintojas turi grąžinti tokio tipo JSON atsaką:
+<pre>
+{
+    "OutputData": "C"
+}
+</pre>
                 </li>
 
             </ol>
@@ -60,7 +62,7 @@
             <div class="add-data-types">
                 <div class="form-inline add-data-type">
                     <div class="form-group">
-                        <select name="InputDataType[0]" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
+                        <select name="InputDataType[0]" class="form-control" asp-items='@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>().Where(x=>x.Text!="None")'></select>
                     </div>
                 </div>
             </div>
@@ -69,7 +71,7 @@
     </div>
     <div class="form-group">
         <label asp-for="OutputDataType" class="control-label"></label>
-        <select asp-for="OutputDataType" class="form-control" asp-items="@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>()"></select>
+        <select asp-for="OutputDataType" class="form-control" asp-items='@Html.GetEnumSelectList<Common.Enums.DataTypeEnum>().Where(x=>x.Text!="None")'></select>
         <span asp-validation-for="OutputDataType" class="text-danger"></span>
     </div>
     <div class="form-group">
