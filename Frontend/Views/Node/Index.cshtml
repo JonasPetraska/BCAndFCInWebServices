@@ -39,8 +39,22 @@
                     <td>@node.Name</td>
                     <td>@node.Endpoint</td>
                     <td>@node.Rule.ToStringFull()</td>
-                    <td>@string.Join(";", node.InputDataType.Select(x => x.DisplayName()).ToList())</td>
-                    <td>@node.OutputDataType.DisplayName()</td>
+                    <td>
+                        @{ 
+                            var listOfInputDataTypes = node.InputDataType.Select(x => x.DisplayName()).ToList();
+                            var str = "";
+                        } 
+                        @for (int i = 0; i < listOfInputDataTypes.Count; i++)
+                        {
+                            str += string.Format("{0}) {1} tipas - {2}", i + 1, node.Rule.LeftSide[i], listOfInputDataTypes[i]);
+                            if (i != listOfInputDataTypes.Count - 1)
+                                str += ", ";
+                        }
+                        @str
+                    </td>
+                    @*<td>@string.Join(";", node.InputDataType.Select(x => x.DisplayName()).ToList())</td>*@
+                    @*<td>@node.OutputDataType.DisplayName()</td>*@
+                    <td>@string.Format("{0} tipas - {1}", node.Rule.RightSide, node.OutputDataType.DisplayName())</td>
                     <td>
                         @Html.ActionLink("Ištrinti", "Remove", "Node", routeValues: new { @id = node.Id }, htmlAttributes: new { @class = "btn btn-danger", @onclick = "return confirm('Ar tikrai norite ištrinti šį gamintoją?')" })
                     </td>

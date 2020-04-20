@@ -33,7 +33,7 @@ namespace Frontend.ViewModels
         public List<DataTypeEnum> InputDataType { get; set; }
 
         [Required(ErrorMessage = "{0} yra privaloma.")]
-        [Display(Name = "Kosekvento tipas")]
+        [Display(Name = "Konsekvento tipas")]
         public DataTypeEnum OutputDataType { get; set; }
 
         public Task<HttpRequestResult<bool>> ValidateEndpoint()

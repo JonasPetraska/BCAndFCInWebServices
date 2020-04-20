@@ -1,4 +1,7 @@
-﻿@model Common.Models.ResponseModel
+﻿@using Common.Enums
+@using Common.Helpers
+@using System.Web
+@model Common.Models.ResponseModel
 <div class="card" style="padding-top: 10px;">
     @for(int i = 0; i < Model.Nodes.Count; i++)
     {
@@ -15,12 +18,8 @@
         {
             <p>@rule.Number: @rule.ToStringFull()</p>
         }
-        @*@foreach (var node in Model.Nodes)
-        {
-            <p>@node.Name: @node.Rule.ToStringFull()</p>
-        }*@
 
-        <h1>Faktai: </h1>
+        <h3>Faktai: </h3>
         <p>[@string.Join(';', Model.Facts)]</p>
 
         <h3>Tikslas: </h3>
@@ -31,26 +30,40 @@
         @if (Model.MethodType.ToLower() == "backward")
         {
             int i = 1;
-
+            var padding = 3;
             @foreach (var element in Model.Trace)
             {
+                {
+                    if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal || element.Type == TraceElementTypeEnum.Fact)
+                    {
+                        padding+=5;
+                    }
+                    else if (element.Type == TraceElementTypeEnum.NewFact || element.Type == TraceElementTypeEnum.EarlierDerivedFact)
+                    {
+                        padding-=5;
+                    }
+                }
+
                 <p>
-                    @string.Format("{0}. Tikslas {1}", i++, element.Goal)
+                    @{
+                        var str = string.Format("{0}.Tikslas {1}.", i, element.Goal).Insert(i++.ToString().Length + 1, StringHelpers.GenerateCharacters(padding, "&nbsp;"));
+                    }
+                    @HttpUtility.HtmlDecode(str)
                     @if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal)
                     {
-                        @string.Format(". Kviečiam {0}: {1}. Nauji tikslai [{2}].", element.Rule.Number, element.Rule.ToStringFull(), string.Join(',', element.NewGoals))
+                        @string.Format("Kviečiam {0}: {1}. Nauji tikslai [{2}].", element.Rule.Number, element.Rule.ToStringFull(), string.Join(',', element.NewGoals))
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.Fact)
                     {
-                        @string.Format(". Faktas.")
+                        @string.Format("Faktas.")
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.EarlierDerivedFact)
                     {
-                        @string.Format(". Ankščiau išvestas faktas.")
+                        @string.Format("Ankščiau išvestas faktas.")
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.NewFact)
                     {
-                        @string.Format(". Naujas faktas {0}. Faktai [{1}].", element.Fact, string.Join(',', element.Facts))
+                        @string.Format("Naujas faktas {0}. Faktai [{1}].", element.Fact, string.Join(',', element.Facts))
                     }
                 </p>
             }
@@ -61,7 +74,7 @@
 
             @foreach (var element in Model.FCTrace)
             {
-                <p>@string.Format("{0}. {1} iteracija", i++, element.Number)</p>
+                <p>@string.Format("{0}. iteracija Nr.{1}", i++, element.Number)</p>
 
                 @foreach (var trace in element.Trace)
                 {
@@ -69,15 +82,15 @@
                         @string.Format("{0}. {1}: {2}", i++, trace.Rule.ToString(), trace.Rule.ToStringFull())
                         @if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleApplicableRaiseFlag1)
                         {
-                            @string.Format(" taikoma, nustatom 1 požymį. Faktai: [{0}].", string.Join(",", trace.Facts))
+                            @string.Format(" taikoma, nustatom 1-ą požymį. Faktai: [{0}].", string.Join(",", trace.Facts))
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableFlag1Raised)
                         {
-                            @string.Format(" netaikoma, nes nustatytas 1 požymis.")
+                            @string.Format(" netaikoma, nes nustatytas 1-as požymis.")
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableFlag2Raised)
                         {
-                            @string.Format(" netaikoma, nes nustatytas 2 požymis.")
+                            @string.Format(" netaikoma, nes nustatytas 2-as požymis.")
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableMissingFacts)
                         {
@@ -85,7 +98,7 @@
                         }
                         else if (trace.Type == Common.Enums.TraceElementTypeEnum.RuleNotApplicableResultInFactsRaiseFlag2)
                         {
-                            @string.Format(" netaikoma, nes tikslas jau yra faktuose, nustatytas 2 požymis.")
+                            @string.Format(" netaikoma, nes tikslas jau yra faktuose, nustatytas 2-as požymis.")
                         }
                     </p>
                 }
