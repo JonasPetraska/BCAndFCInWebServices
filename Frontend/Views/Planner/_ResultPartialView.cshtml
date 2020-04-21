@@ -1,6 +1,7 @@
 ﻿@using Common.Enums
 @using Common.Helpers
 @using System.Web
+@using Common.Comparers
 @model Common.Models.ResponseModel
 <div class="card" style="padding-top: 10px;">
     @for(int i = 0; i < Model.Nodes.Count; i++)
@@ -31,10 +32,12 @@
         {
             int i = 1;
             var padding = 3;
-            @foreach (var element in Model.Trace)
+            var factPadding = 0;
+            var isFirstFact = false;
+            @foreach (var element in Model.Trace.Distinct(new BackwardsChainingTraceElementComparer()))
             {
                 {
-                    if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal || element.Type == TraceElementTypeEnum.Fact)
+                    if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal)
                     {
                         padding+=5;
                     }
@@ -42,11 +45,17 @@
                     {
                         padding-=5;
                     }
+                    else if (!isFirstFact && element.Type == Common.Enums.TraceElementTypeEnum.Fact)
+                    {
+                        padding+=5;
+                        isFirstFact = true;
+                    }
+
                 }
 
                 <p>
                     @{
-                        var str = string.Format("{0}.Tikslas {1}.", i, element.Goal).Insert(i++.ToString().Length + 1, StringHelpers.GenerateCharacters(padding, "&nbsp;"));
+                        var str = string.Format("{0}.Tikslas {1}.", i, element.Goal).Insert(i++.ToString().Length + 1, StringHelpers.GenerateCharacters(element.Type == Common.Enums.TraceElementTypeEnum.Fact ? (factPadding == 0 ? padding : factPadding) : padding, "&nbsp;"));
                     }
                     @HttpUtility.HtmlDecode(str)
                     @if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal)
@@ -56,6 +65,11 @@
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.Fact)
                     {
                         @string.Format("Faktas.")
+                        if (factPadding == 0)
+                        {
+                            factPadding = padding;
+                        }
+
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.EarlierDerivedFact)
                     {
