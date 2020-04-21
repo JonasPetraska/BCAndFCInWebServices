@@ -17,7 +17,7 @@
         <h3>Produkcinės taisyklės: </h3>
         @foreach (var rule in Model.Rules)
         {
-            <p>@rule.Number: @rule.ToStringFull()</p>
+            <p>@rule.Number: @rule.ToStringFull() @*(@Model.Nodes.FirstOrDefault(x => x.Rule.ToStringFull() == rule.ToStringFull())?.Name)*@</p>
         }
 
         <h3>Faktai: </h3>
@@ -88,7 +88,7 @@
 
             @foreach (var element in Model.FCTrace)
             {
-                <p>@string.Format("{0}. iteracija Nr.{1}", i++, element.Number)</p>
+                <p>@string.Format("{0}. Iteracija Nr.{1}", i++, element.Number)</p>
 
                 @foreach (var trace in element.Trace)
                 {
