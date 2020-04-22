@@ -30,7 +30,7 @@ namespace Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> Execute(int id)
         {
-            ViewData["Title"] = "Vykdyti planą";
+            ViewData["Title"] = "Plano vykdymas";
 
             var programsResult = await _programService.GetAllPrograms();
             var programs = programsResult.result;
@@ -53,7 +53,7 @@ namespace Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Execute(ExecuteProgramViewModel model)
         {
-            ViewData["Title"] = "Vykdyti planą";
+            ViewData["Title"] = "Plano vykdymas";
 
             var programsResult = await _programService.GetAllPrograms();
             var programs = programsResult.result;
@@ -137,7 +137,7 @@ namespace Frontend.Controllers
         {
             await _programService.RemoveProgram(id);
 
-            TempData["SuccessMessage"] = "Gamintojas sėkmingai ištrintas.";
+            TempData["SuccessMessage"] = "Gamybos planas sėkmingai ištrintas.";
             return RedirectToAction("Index");
         }
 

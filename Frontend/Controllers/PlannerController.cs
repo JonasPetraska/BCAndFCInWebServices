@@ -26,7 +26,7 @@ namespace Frontend.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ViewData["Title"] = "Planuotojas";
+            ViewData["Title"] = "Planavimas";
 
             var nodesResult = await _nodesService.GetAllNodes();
             var nodes = nodesResult.result;
@@ -160,7 +160,7 @@ namespace Frontend.Controllers
             program.Name = model.ProgramName;
 
             await _programService.AddProgram(program);
-            return Json("Vykdymo planas išsaugotas.");
+            return Json("Gamybos planas išsaugotas.");
 
         }
 
