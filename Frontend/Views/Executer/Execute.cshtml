@@ -15,22 +15,25 @@
     </div>
 
     @{
-        var firstNode = Model.Nodes.FirstOrDefault();
-
+        //var firstNode = Model.Nodes.FirstOrDefault();
+        
     }
 
-    @for (int i = 0; i < firstNode.Rule.LeftSide.Count; i++)
+    @for (int i = 0; i < Model.NodeInputValues.Count; i++)
     {
         <div class="form-group">
-            <label for="NodeInputValues[@i]" class="control-label">@firstNode.Rule.LeftSide[i] (@firstNode.InputDataType[i].DisplayName())</label>
-            @if(firstNode.InputDataType[i] == Common.Enums.DataTypeEnum.ImageAsBase64String)
+            <label for="NodeInputValues[@i]" class="control-label">@Model.NodeInputValues[i].Letter (@Model.NodeInputValues[i].Type.DisplayName())</label>
+            @Html.Hidden("NodeInputValues[" + i + "].Type", Model.NodeInputValues[i].Type)
+            @Html.Hidden("NodeInputValues[" + i + "].NodeId", Model.NodeInputValues[i].NodeId)
+            @Html.Hidden("NodeInputValues[" + i + "].Letter", Model.NodeInputValues[i].Letter)
+            @if(Model.NodeInputValues[i].Type == Common.Enums.DataTypeEnum.ImageAsBase64String)
             {
 				<input class="form-control" type="file" accept=".jpg,.png,.jpeg" onchange="setTimeout(encodeImageFileAsURL(this), 500)"/>
-                <textarea data-type="img" name="NodeInputValues[@i]" class="form-control readonly" style="pointer-events: none;" required>@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")</textarea> 
+                <textarea data-type="img" name="NodeInputValues[@i].Value" class="form-control readonly" style="pointer-events: none;" required>@(Model.NodeInputValues[i].Value != null ? Model.NodeInputValues[i].Value : "")</textarea> 
             }
             else
             {
-                <input name="NodeInputValues[@i]" class="form-control" value="@(Model.NodeInputValues != null && Model.NodeInputValues.Any() ? Model.NodeInputValues[i] : "")" required/>
+                <input name="NodeInputValues[@i].Value" class="form-control" value="@(Model.NodeInputValues[i].Value != null ? Model.NodeInputValues[i].Value : "")" required/>
             }
             <div class="NodeInputValuesDisplay-@i" style="margin-top:30px;"></div>
         </div>

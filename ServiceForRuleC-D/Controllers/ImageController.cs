@@ -17,19 +17,20 @@ namespace ServiceForRuleC_D.Controllers
     [Route("api/[controller]/[action]")]
     public class ImageController : ControllerBase
     {
-        private string _text = "Copyright Jonas Petraška";
+        private string _prefixText = "Copyright";
 
         [HttpPost]
         public IActionResult Index(NodeRequestModel model)
         {
             var responseModel = new NodeResponseModel();
 
-            if (model.InputData.Count != 1)
+            if (model.InputData.Count != 2)
                 return BadRequest("Nepakankamas parametrų skaičius.");
 
             var imageAsBase64 = model.InputData[0].Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", "");
+            var strToPutOnImage = model.InputData[1];
 
-            var img = GetBase64StringOfImageWithText(imageAsBase64);
+            var img = GetBase64StringOfImageWithText(imageAsBase64, _prefixText + " " + strToPutOnImage);
 
             responseModel.OutputData = img;
 
@@ -42,7 +43,7 @@ namespace ServiceForRuleC_D.Controllers
             return Ok();
         }
 
-        private string GetBase64StringOfImageWithText(string base64Image)
+        private string GetBase64StringOfImageWithText(string base64Image, string text)
         {
             string str = "";
 
@@ -59,15 +60,17 @@ namespace ServiceForRuleC_D.Controllers
                         VerticalAlignment = VerticalAlignment.Center,
                     };
 
-                    var fontSize = 26;
-                    if (image.Height > 500)
-                        fontSize = 80;
+                    //Pick any font size, since it will be replaced later
+                    var initialFont = SystemFonts.CreateFont("Arial", 10);
+                    var size = TextMeasurer.Measure(text, new RendererOptions(initialFont));
+                    var scalingFactor = Math.Min(image.Width / 2 / size.Width, image.Height / 2 / size.Height);
+
+                    var font = new Font(initialFont, scalingFactor * initialFont.Size, FontStyle.Bold);
 
                     var textColor = GetContrastColorBW(image);
 
-                    var font = SystemFonts.CreateFont("Arial", fontSize);
-                    var bottom = new PointF(image.Width / 2, image.Height - fontSize);
-                    context.DrawText(textGraphicsOptions, _text, font, textColor, bottom);
+                    var bottom = new PointF(image.Width / 2, image.Height - font.Size);
+                    context.DrawText(textGraphicsOptions, text, font, textColor, bottom);
                 });
 
                 str = image.ToBase64String<Rgba32>(PngFormat.Instance);

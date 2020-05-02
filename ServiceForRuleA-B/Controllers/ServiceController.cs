@@ -60,13 +60,15 @@ namespace ServiceForRuleA_B.Controllers
                         VerticalAlignment = VerticalAlignment.Center
                     };
 
-                    var fontSize = 26;
-                    if (image.Height > 500)
-                        fontSize = 80;
+                    //Pick any font size, since it will be replaced later
+                    var initialFont = SystemFonts.CreateFont("Arial", 10);
+                    var size = TextMeasurer.Measure(text, new RendererOptions(initialFont));
+                    var scalingFactor = Math.Min(image.Width / 2 / size.Width, image.Height / 2 / size.Height);
+
+                    var font = new Font(initialFont, scalingFactor * initialFont.Size, FontStyle.Bold);
 
                     var textColor = GetContrastColorBW(image);
 
-                    var font = SystemFonts.CreateFont("Arial", fontSize);
                     var center = new PointF(image.Width / 2, image.Height / 2);
                     context.DrawText(textGraphicsOptions, text, font, textColor, center);
                 });

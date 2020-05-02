@@ -12,7 +12,7 @@ namespace Frontend.ViewModels
     {
         public ExecuteProgramViewModel()
         {
-            NodeInputValues = new List<string>();
+            NodeInputValues = new List<ProgramInputWithValue>();
         }
 
         public int ProgramId { get; set; }
@@ -23,8 +23,11 @@ namespace Frontend.ViewModels
         [Display(Name = "Tiekėjai")]
         public List<Node> Nodes { get; set; }
 
+        //[Display(Name = "Antecedentų reikšmės")]
+        //public List<string> NodeInputValues { get; set; }
+
         [Display(Name = "Antecedentų reikšmės")]
-        public List<string> NodeInputValues { get; set; }
+        public List<ProgramInputWithValue> NodeInputValues { get; set; }
 
         [Display(Name = "Rezultatas")]
         public string Result { get; set; }

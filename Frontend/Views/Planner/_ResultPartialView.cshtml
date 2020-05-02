@@ -33,22 +33,29 @@
             int i = 1;
             var padding = 3;
             var factPadding = 0;
-            var isFirstFact = false;
+            var isPreviousFact = false;
             @foreach (var element in Model.Trace.Distinct(new BackwardsChainingTraceElementComparer()))
             {
                 {
                     if (element.Type == Common.Enums.TraceElementTypeEnum.NewGoal)
                     {
-                        padding+=5;
+                        if (!isPreviousFact)
+                        {
+                            padding += 5;
+                        }
+
+                        isPreviousFact = false;
                     }
                     else if (element.Type == TraceElementTypeEnum.NewFact || element.Type == TraceElementTypeEnum.EarlierDerivedFact)
                     {
-                        padding-=5;
+                        padding -= 5;
+                        isPreviousFact = false;
                     }
-                    else if (!isFirstFact && element.Type == Common.Enums.TraceElementTypeEnum.Fact)
+                    else if (!isPreviousFact && element.Type == Common.Enums.TraceElementTypeEnum.Fact)
                     {
-                        padding+=5;
-                        isFirstFact = true;
+                        padding += 5;
+                        isPreviousFact = true;
+                        factPadding = padding;
                     }
 
                 }
@@ -65,10 +72,6 @@
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.Fact)
                     {
                         @string.Format("Faktas.")
-                        if (factPadding == 0)
-                        {
-                            factPadding = padding;
-                        }
 
                     }
                     else if (element.Type == Common.Enums.TraceElementTypeEnum.EarlierDerivedFact)

@@ -159,58 +159,32 @@ namespace Frontend.Controllers
             program.Nodes = nodes;
             program.Name = model.ProgramName;
 
+            //Find all input values
+            var firstNode = nodes.First();
+            for(int i = 0; i < firstNode.Rule.LeftSide.Count; i++)
+                program.Inputs.Add(new ProgramInput()
+                {
+                    Letter = firstNode.Rule.LeftSide[i],
+                    NodeId = firstNode.Id,
+                    Type  = firstNode.InputDataType[i]
+                });
+
+            var nodesWithoutFirst = nodes.Where(x => x.Id != firstNode.Id).ToList();
+            var nodesWithoutFirstCopy = new List<Node>(nodesWithoutFirst);
+            foreach (var node in nodesWithoutFirst)
+                for (int i = 0; i < node.Rule.LeftSide.Count; i++)
+                    if (!nodesWithoutFirstCopy.Any(x => x.Rule.RightSide == node.Rule.LeftSide[i]) &&
+                        firstNode.Rule.RightSide != node.Rule.LeftSide[i])
+                        program.Inputs.Add(new ProgramInput()
+                        {
+                            Letter = node.Rule.LeftSide[i],
+                            NodeId = node.Id,
+                            Type = node.InputDataType[i]
+                        });
+
             await _programService.AddProgram(program);
             return Json("Gamybos planas išsaugotas.");
 
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> ProcessRequest(RequestModel model)
-        //{
-        //    model.AssignNumbersToRules();
-
-        //    var nodesResult = await _nodesService.GetAllNodes();
-        //    if(!nodesResult.isSuccessful)
-        //    {
-        //        ModelState.AddModelError("", nodesResult.ToStringErrors());
-        //        return View(model);
-        //    }
-
-        //    var nodes = nodesResult.result;
-        //    var rules = string.Join(System.Environment.NewLine, nodes.Select(x => x.Rule.ToStringFull()).ToList());
-
-        //    foreach (var rule in model.Rules)
-        //        if (!rules.Contains(rule.ToStringFull()))
-        //        {
-        //            return PartialView("~/Views/Shared/Error.cshtml", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //        }
-
-        //    HttpRequestResult<ResponseModel> result;
-
-        //    if (model.MethodType.ToLower() == "backward")
-        //    {
-        //        result = await _httpClient.PostAsync<ResponseModel, RequestModel>(Endpoints.MainBCEndPoint + "BC/Process", model);
-        //    }
-        //    else
-        //    {
-        //        result = await _httpClient.PostAsync<ResponseModel, RequestModel>(Endpoints.MainFCEndPoint + "FC/Process", model);
-        //    }
-
-        //    if (result.isSuccessful) 
-        //    {
-        //        var resObj = result.result;
-
-        //        if (resObj.MethodType.ToLower() == "forward")
-        //            resObj.GenerateIterationsFromTrace();
-
-        //        return PartialView("_ResultPartialView", resObj);
-        //    }
-        //    else
-        //    {
-        //        return PartialView("~/Views/Shared/Error.cshtml", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //    }
-        //}
-
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Helpers;
+using Common.Models;
 using Frontend.Services;
 using Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +45,8 @@ namespace Frontend.Controllers
             {
                 ProgramId = program.Id,
                 ProgramName = program.Name,
-                Nodes = new List<Common.Models.Node>(program.Nodes)
+                Nodes = new List<Common.Models.Node>(program.Nodes),
+                NodeInputValues = program.Inputs.Select(x => new ProgramInputWithValue(x)).ToList()
             };
 
             return View(model);
@@ -67,10 +70,9 @@ namespace Frontend.Controllers
             if (nodes == null || !nodes.Any())
                 return RedirectToAction("Index");
 
-            var firstNode = nodes.First();
             model.Nodes = program.Nodes;
 
-            var validationResult = firstNode.ValidateInputValues(model.NodeInputValues);
+            var validationResult = ProgramHelpers.ValidateInputValues(model.NodeInputValues);
             if (!validationResult.isSuccessful)
             {
                 ModelState.AddModelError("", validationResult.ToStringErrors());
@@ -90,36 +92,24 @@ namespace Frontend.Controllers
             var result = "";
             do
             {
-                if (String.IsNullOrEmpty(result))
+                var inputValuesForNode = new List<string>();
+                if (!String.IsNullOrEmpty(result))
+                    inputValuesForNode.Add(result);
+
+                inputValuesForNode.AddRange(model.NodeInputValues.Where(x => x.NodeId == nodes[i].Id).Select(x => x.Value).ToList());
+                
+                var res = await nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
                 {
-                    var res = await nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
-                    {
-                        InputData = model.NodeInputValues
-                    });
+                    InputData = inputValuesForNode
+                });
 
-                    if (!res.isSuccessful)
-                    {
-                        model.Error = res.ToStringErrors();
-                        break;
-                    }
-
-                    result = res.result.OutputData;
-                }
-                else
+                if (!res.isSuccessful)
                 {
-                    var res = await nodes[i].GetNodeResultAsync(new Common.Models.NodeRequestModel()
-                    {
-                        InputData = new List<string>() { result }
-                    });
-
-                    if (!res.isSuccessful)
-                    {
-                        model.Error = res.ToStringErrors();
-                        break;
-                    }
-
-                    result = res.result.OutputData;
+                    model.Error = res.ToStringErrors();
+                    break;
                 }
+
+                result = res.result.OutputData;
 
                 i++;
             } while (i < count);
@@ -130,6 +120,7 @@ namespace Frontend.Controllers
 
                 model.Result = finalResult;
             }
+
             return View(model);
         }
 
